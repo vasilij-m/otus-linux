@@ -292,7 +292,6 @@ log_line_prefix = '%%t [%%p]: [%%l-1] db=%%d,user=%%u,app=%%a,client=%%h '
 shared_preload_libraries = 'pg_stat_statements, pg_buffercache'
 synchronous_commit = 'off'
 ```
-# ПРОДОЛЖАТЬ ОТСЮДА
 ### Настроим потоковую репликацию
 
 ***1. На **мастере** в файле `postgresql.conf` установим следующие параметры и перезапустим postgresql-12:***
