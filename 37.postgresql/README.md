@@ -715,45 +715,7 @@ archive_command = 'barman-wal-archive barman master %p'
 **На barman** проверим корректность конфигурации WAL archiving **с мастера**:
 
 ```
-
 ssh -o StrictHostKeyChecking=no barman@barman true && /bin/barman-wal-archive barman master %p
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 команды по реплике/бэкапу (pg_basebackup) в постгресе делаем от имени юзера постгрес! в ансибл это become_user: postgres
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
