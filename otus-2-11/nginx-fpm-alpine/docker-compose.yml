@@ -1,0 +1,29 @@
+version: "3.3"
+services:
+
+  nginx-fpm:
+    image: vasiilij/nginx-fpm:1.0
+    container_name: nginx-fpm
+    depends_on: 
+      - php-fpm
+    volumes:
+      - ./nginx/nginx-fpm.conf://etc/nginx/nginx.conf
+      - ./nginx/index-www/:/www/
+    ports:
+      - 80:80
+    networks:
+      - web
+
+  php-fpm:
+    image: vasiilij/php-fpm:1.0
+    container_name: php-fpm
+    volumes:
+      - ./php-fpm/www.conf:/etc/php7/php-fpm.d/www.conf
+      - ./nginx/index-www/:/www/
+    ports:
+      - 9000
+    networks:
+      - web
+
+networks:
+  web:

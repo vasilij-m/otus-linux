@@ -1,0 +1,108 @@
+---
+- name: Copy hosts file
+  template:
+    src: master_hosts.j2
+    dest: /etc/hosts
+
+- name: Initialize database
+  command: "{{ pgsql_bin_path }}/initdb -D {{ pgsql_data_dir }} -E {{ pgsql_encoding }} --locale {{ pgsql_locale }}"
+  become_user: postgres
+  args:
+    creates: "{{ pgsql_data_dir }}/postgresql.conf"
+
+- name: Ensure PosgreSQL is started and enabled
+  systemd:
+    name: postgresql-12
+    state: started
+    enabled: yes
+
+- name: Configure pgsql authentication
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ pgsql_data_dir }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: 0600
+  notify: reload postgresql
+
+- name: Configure global postgresql settings
+  lineinfile:
+    dest: "{{ pgsql_data_dir }}/postgresql.conf"
+    regexp: "^#?{{ item.option }}.+$"
+    line: "{{ item.value }}"
+    owner: postgres
+    group: postgres
+    mode: 0600
+  loop: "{{ pgsql_global_options }}"
+  notify: restart postgresql
+
+- name: Create pgsql users
+  postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    encrypted: "{{ item.encrypted }}"
+    role_attr_flags: "{{ item.role_attr_flags }}"
+  become_user: postgres
+  loop: "{{ pgsql_users }}"
+
+- name: Copy pgpass for root
+  template:
+    src: pgpass.j2
+    dest: /root/.pgpass
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Edit root .bashrc
+  lineinfile:
+    path: /root/.bashrc
+    line: export PGDATABASE={{ root_default_pgdatabase }}
+
+- name: Create databases
+  postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+    state: "{{ item.state }}"
+  become_user: postgres
+  loop: "{{ pgsql_databases }}"
+
+- name: Edit mamonsu config for postgresql
+  template:
+    src: mamonsu_agent.conf.j2
+    dest: /etc/mamonsu/agent.conf
+
+- block:
+
+  - name: Verify check line for mamonsu
+    lineinfile:
+      path: "{{ pgsql_data_dir }}/postgresql.conf"
+      line: "#MAMONSU AUTOCONF DONE"
+      state: present
+    check_mode: yes
+    register: check_mamonsu_autoconf
+
+  - name: Run mamonsu bootstrap
+    shell: >
+      mamonsu bootstrap -M "{{ pgsql_mamonsu_user_name }}" --dbname "{{ pgsql_mamonsu_database }}" 
+      --username "{{ pgsql_root_user_name }}" --password "{{ pgsql_root_user_password }}"
+    when: check_mamonsu_autoconf is changed
+
+  - name: Run mamonsu tune
+    shell: >
+      mamonsu tune -d "{{ pgsql_mamonsu_database }}" -U "{{ pgsql_root_user_name }}" 
+      -W "{{ pgsql_root_user_password }}"
+    when: check_mamonsu_autoconf is changed
+
+  - name: Add check line for mamonsu
+    lineinfile:
+      path: "{{ pgsql_data_dir }}/postgresql.conf"
+      line: "#MAMONSU AUTOCONF DONE"
+      state: present
+    when: check_mamonsu_autoconf is changed
+  
+  when: pgsql_mamonsu_autoconf_enabled == True
+
+
+
+
+

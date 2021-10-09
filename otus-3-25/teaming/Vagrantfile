@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+  config.vm.box_version = "1905.1"
+  config.vbguest.auto_update = false
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 256
+    v.cpus = 1
+  end
+
+  config.vm.define "inetRouter" do |inetRouter|
+    #for coorect work of teaming in Virtualbox parameter "auto_config: false" is mandatory!!! 
+    inetRouter.vm.network "private_network", ip: "", auto_config: false, virtualbox__intnet: "router-net"
+    inetRouter.vm.network "private_network", ip: "", auto_config: false, virtualbox__intnet: "router-net"
+    #management network
+    inetRouter.vm.network "private_network", ip: "10.11.11.11"
+    inetRouter.vm.hostname = "inetRouter"
+  end
+
+  config.vm.define "centralRouter" do |centralRouter|
+    #for coorect work of teaming in Virtualbox parameter "auto_config: false" is mandatory!!! 
+    centralRouter.vm.network "private_network", ip: "", auto_config: false, virtualbox__intnet: "router-net"
+    centralRouter.vm.network "private_network", ip: "", auto_config: false, virtualbox__intnet: "router-net"
+    centralRouter.vm.network "private_network", ip: "192.168.2.1", virtualbox__intnet: "test-lan"
+    #management network
+    centralRouter.vm.network "private_network", ip: "10.11.11.12"
+    centralRouter.vm.hostname = "centralRouter"
+  end
+
+end

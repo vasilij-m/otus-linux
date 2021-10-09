@@ -1,0 +1,114 @@
+---
+- name: Set timezone
+  timezone:
+    name: Europe/Moscow
+
+- name: Install packages for SELinux and ntp
+  yum:
+    name: 
+      - policycoreutils-python
+      - libselinux-python
+      - ntp
+    state: present
+
+- name: Ensure ntpd started
+  systemd:
+    name: ntpd
+    state: started
+    enabled: yes
+
+- name: Install postgres and epel repository
+  yum:
+    name: 
+      - https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+      - https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: Install postgresql12-server on "{{ master_hostname }}" and "{{ slave_hostname }}"
+  yum:
+    name: 
+      - postgresql12-server
+      - postgresql12-contrib
+      - python-psycopg2
+    state: present
+  when: (ansible_hostname == master_hostname) or (ansible_hostname == slave_hostname)
+
+- name: Install posgresql12-client on "{{ barman_hostname }}"
+  yum:
+    name: postgresql12
+    state: present
+  when: ansible_hostname == barman_hostname
+
+- name: Install mamonsu rpm on "{{ master_hostname }}"
+  yum:
+    name: https://repo.postgrespro.ru/mamonsu/keys/centos.rpm
+    state: present
+  when: ansible_hostname == master_hostname
+
+- name: Install mamonsu packet on "{{ master_hostname }}"
+  yum:
+    name: mamonsu
+    state: present
+  when: ansible_hostname == master_hostname
+
+- name: Download barman repository installation script
+  get_url:
+    url: https://dl.2ndquadrant.com/default/release/get/12/rpm
+    dest: /tmp/barman_rpm.sh
+    mode: 0744
+
+- name: Install barman repository
+  shell: /tmp/barman_rpm.sh
+  args:
+    creates: /etc/yum.repos.d/2ndquadrant-dl-default-release-pg12.repo
+
+- name: Enable pgdg-common repo
+  yum:
+    enablerepo: pgdg-common
+
+- name: Update yum cache
+  yum:
+    update_cache: yes
+
+- name: Install barman
+  yum:
+    name: barman
+    state: present
+  when: ansible_hostname == barman_hostname
+
+- name: Install barman-cli
+  yum:
+    name: barman-cli
+    state: present
+  when: (ansible_hostname == master_hostname) or (ansible_hostname == slave_hostname)
+
+# - name: fetch pg_master ssh keys
+#   fetch:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     flat: yes
+#   loop:
+#     - { src: '/var/lib/pgsql/.ssh/pg_master', dest: '/selfup/otus-linux/37-pgsql/master/files/pg_master'}
+#     - { src: '/var/lib/pgsql/.ssh/pg_master.pub', dest: '/selfup/otus-linux/37-pgsql/master/files/pg_master.pub'}
+#   when: ansible_hostname == master_hostname
+
+# - name: fetch pg_slave ssh keys
+#   fetch:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     flat: yes
+#   loop:
+#     - { src: '/var/lib/pgsql/.ssh/pg_slave', dest: '/selfup/otus-linux/37-pgsql/slave/files/pg_slave'}
+#     - { src: '/var/lib/pgsql/.ssh/pg_slave.pub', dest: '/selfup/otus-linux/37-pgsql/slave/files/pg_slave.pub'}
+#   when: ansible_hostname == slave_hostname
+
+# - name: fetch pg_barman ssh keys
+#   fetch:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     flat: yes
+#   loop:
+#     - { src: '/var/lib/barman/.ssh/pg_barman', dest: '/selfup/otus-linux/37-pgsql/barman/files/pg_barman'}
+#     - { src: '/var/lib/barman/.ssh/pg_barman.pub', dest: '/selfup/otus-linux/37-pgsql/barman/files/pg_barman.pub'}
+#   when: ansible_hostname == barman_hostname
+

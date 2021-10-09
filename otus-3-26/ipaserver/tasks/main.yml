@@ -1,0 +1,84 @@
+---
+- name: Allow password authentication via ssh
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication.*$'
+    line: 'PasswordAuthentication yes'
+  notify:
+    - restart sshd
+  
+- name: Set timezone
+  timezone:
+    name: Europe/Moscow
+
+- name: Set ipaserver hostname
+  hostname:
+    name: "{{ ipaserver_hostname }}"
+
+- name: Set ipaserver hostname permanently
+  replace:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1[ \t]+{{ ansible_hostname }}[ \t]+{{ ansible_hostname }}'
+    replace: '{{ ipaserver_ipaddress }}    {{ ipaserver_hostname }}    {{ ipaserver_alias }}'
+  notify:
+    - restart network
+
+- name: Enable firewalld service
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Open FreeIPA ports
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - freeipa-ldap
+    - freeipa-ldaps
+    - dns
+  notify:
+    - reload firewalld
+
+- name: Install FreeIPA packages
+  yum:
+    name:
+      - ipa-server
+      - ipa-server-dns
+    state: present
+
+- name: Install ipa server
+  command: |
+    ipa-server-install --unattended \
+    --realm={{ ipaserver_realm }} \
+    --domain={{ ipaserver_domain }} \
+    --ds-password={{ ipaserver_managerpassword }} \
+    --master-password={{ ipaserver_kerberospassword }} \
+    --admin-password={{ ipaserver_adminspassword }} \
+    --hostname={{ ipaserver_hostname }} \
+    --ip-address={{ ipaserver_ipaddress }} \
+    --setup-dns \
+    --forwarder={{ ipaserver_forwarder }} \
+    --auto-reverse \
+    --mkhomedir
+  args:
+    creates: /etc/ipa/default.conf
+
+- name: Create ipa user
+  ipa_user:
+    name: "{{ user_login_name }}"
+    givenname: "{{ user_first_name }}"
+    sn: "{{ user_surname }}"
+    displayname: "{{ user_displayname }}"
+    password: "{{ user_password }}"
+    krbpasswordexpiration: '20201231235959'
+    sshpubkey: "{{ user_sshpubkey }}"
+    loginshell: "{{ user_shell }}"
+    ipa_user: "{{ ipaserver_admin }}"
+    ipa_pass: "{{ ipaserver_adminspassword }}"
+    ipa_host: "{{ ipaserver_hostname }}"
+    state: present
+
+
+

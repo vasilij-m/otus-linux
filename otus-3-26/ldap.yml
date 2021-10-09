@@ -1,0 +1,9 @@
+- hosts: servers
+  become: true
+  roles:
+    - ipaserver
+
+- hosts: workstations
+  become: true
+  roles:
+    - ipaclient

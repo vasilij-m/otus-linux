@@ -1,0 +1,15 @@
+ipaddr: '10.0.0.2'
+prefix: '32'
+network: '10.0.0.2'
+
+stsdev: 'tap'
+stsremote: '192.168.10.10'
+stsifconfig: '172.16.10.2 255.255.255.0'
+ststopology: 'subnet'
+stsroute: '10.0.0.1 255.255.255.255 172.16.10.1'
+stscompress: 'lzo'
+
+rasdev: 'tun'
+rasproto: 'udp'
+rasremote: '192.168.10.10 1195'
+rascompress: 'lzo'

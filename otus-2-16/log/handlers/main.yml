@@ -1,0 +1,13 @@
+---
+- name: restart rsyslog
+  systemd:
+    name: rsyslog
+    state: restarted
+
+- name: restart filebeat
+  systemd:
+    name: filebeat
+    state: restarted
+
+- name: restart auditd
+  command: service auditd restart

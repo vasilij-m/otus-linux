@@ -1,0 +1,17 @@
+---
+- name: restart network
+  systemd:
+    name: network
+    state: restarted
+
+- name: restart openvpn server
+  systemd:
+    name: openvpn@server
+    state: restarted
+    enabled: yes
+
+- name: stop openvpn client
+  systemd:
+    name: openvpn@client
+    state: stopped
+    enabled: no

@@ -1,0 +1,89 @@
+---
+- name: Set timezone
+  timezone:
+    name: Europe/Moscow
+
+- name: Install Java
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+
+- name: Adding elasticsearch repo
+  copy:
+    src: elasticsearch.repo
+    dest: /etc/yum.repos.d/
+
+- name: Install Elasticsearch Logstash Kibana
+  yum:
+    name:
+      - elasticsearch
+      - logstash
+      - kibana
+    state: present
+
+- name: Start elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+
+# - name: Generate logstash.service for systemd
+#   command: /usr/share/logstash/bin/system-install /etc/logstash/startup.options systemd
+
+- name: Start logstash
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+
+- name: Start kibana
+  systemd:
+    name: kibana
+    state: started
+    enabled: yes
+
+- name: Copy elasticsearch configs
+  copy:
+    src: '{{ item }}'
+    dest: /etc/elasticsearch/
+    owner: root
+    group: elasticsearch
+    mode: '0660'
+  loop:
+    - elasticsearch.yml
+    - jvm.options
+  notify:
+    - restart elasticsearch
+
+- name: Change ownership for logstash directory
+  file:
+    path: '{{ item }}'
+    state: directory
+    recurse: yes
+    owner: logstash
+    group: logstash
+  loop:
+    - /var/lib/logstash/
+    - /var/log/logstash/
+
+- name: Copy logstash configs
+  copy:
+    src: '{{ item }}'
+    dest: /etc/logstash/conf.d/
+  loop:
+    - 02-beats-input.conf
+    - 10-nginx-filter.conf
+    - 20-output.conf
+  notify:
+     - restart logstash
+
+- name: Copy Kibana config
+  copy:
+    src: kibana.yml
+    dest: /etc/kibana/
+  notify:
+    - restart kibana
+
+
+
+

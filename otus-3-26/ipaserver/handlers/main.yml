@@ -1,0 +1,17 @@
+---
+- name: restart sshd
+  systemd:
+    name: sshd
+    state: restarted
+
+- name: restart network
+  systemd:
+    name: network
+    state: restarted
+
+- name: reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+  

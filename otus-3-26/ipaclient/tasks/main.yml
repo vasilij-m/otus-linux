@@ -1,0 +1,90 @@
+---
+- name: 'Allow password authentication via ssh'
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication.*$'
+    line: 'PasswordAuthentication yes'
+  notify:
+    - restart sshd
+  
+- name: 'Set timezone'
+  timezone:
+    name: Europe/Moscow
+
+- name: Set ipaclient hostname
+  hostname:
+    name: "{{ ansible_hostname }}.{{ ipaclient_domain }}"
+
+- name: Install FreeIPA client package
+  yum:
+    name: ipa-client
+    state: present
+
+- name: NetworkManager dns off
+  blockinfile:
+    path: /etc/NetworkManager/conf.d/ipa-dns.conf
+    create: yes
+    block: |
+      [main]
+      dns=none
+  notify:
+    - restart NetworkManager
+
+- name: Copy resolv.conf from template
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf  
+  notify:
+    - prevent resolv.conf update
+
+- name: restart NetworkManager
+  systemd:
+    name: NetworkManager
+    state: restarted
+
+- name: Enable firewalld service
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Open FreeIPA ports
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - freeipa-ldap
+    - freeipa-ldaps
+    - dns
+  notify:
+    - reload firewalld
+
+- name: Install ipa client
+  command: |
+    ipa-client-install --unattended \
+    --server={{ ipaserver_hostname }} \
+    --domain={{ ipaclient_domain }} \
+    --realm={{ ipaclient_realm }} \
+    --principal {{ ipa_principal }} \
+    --password={{ ipaserver_adminspassword }} \
+    --mkhomedir \
+    --hostname={{ ansible_hostname }}.{{ ipaclient_domain }}
+  args:
+    creates: /etc/ipa/default.conf
+
+- name: Copy ssh key
+  copy:
+    src: "{{ item }}"
+    dest: /home/vagrant/{{ item }}
+    owner: vagrant
+    group: vagrant
+    mode: '0600'
+  loop:
+    - otus_lab_ssh_key
+    - otus_lab_ssh_key.pub
+
+
+
+
+  

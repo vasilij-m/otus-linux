@@ -1,0 +1,5 @@
+all:
+  hosts:
+    pam:
+      ansible_host: 192.168.11.11
+      ansible_ssh_private_key_file: ./.vagrant/machines/pam/virtualbox/private_key

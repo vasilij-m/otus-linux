@@ -1,0 +1,117 @@
+---
+- name: 'Deploy zabbix server'
+  hosts: zabbix
+  become: true
+  tasks:
+    
+    - name: 'Install zabbix configuration package from rpm'
+      yum:
+        name: https://repo.zabbix.com/zabbix/4.4/rhel/7/x86_64/zabbix-release-4.4-1.el7.noarch.rpm
+        state: present
+
+    - name: 'Install packages'
+      yum:
+        name:
+          - zabbix-server-mysql
+          - zabbix-web-mysql
+          - zabbix-nginx-conf 
+          - MySQL-python
+          - policycoreutils-python
+        state: present
+
+    - name: 'Create mysql database'
+      mysql_db:
+        login_user: root
+        login_password: ''
+        name: 'zabbix'
+        encoding: utf8
+        collation: utf8_bin
+
+    - name: 'Create user'
+      mysql_user:
+        name: 'zabbix'
+        password: 'Z@bbixx1'
+        host: 'localhost'
+        priv: 'zabbix.*:ALL'
+#        encrypted: no
+        state: present
+
+    - name: 'Restore database from dump file'
+      mysql_db:
+        name: zabbix
+#        config_file: /etc/my.cnf
+        state: import
+        target: /usr/share/doc/zabbix-server-mysql-4.4.8/create.sql.gz
+
+    - name: 'Copy zabbix_server.conf'
+      copy:
+        src: ../configfiles/zabbix_server.conf
+        dest: /etc/zabbix/zabbix_server.conf
+
+    - name: 'Copy zabbix.conf'
+      copy:
+        src: ../configfiles/nginx_zabbix.conf
+        dest: /etc/nginx/conf.d/zabbix.conf
+
+    - name: 'Copy nginx.conf'
+      copy:
+        src: ../configfiles/nginx.conf
+        dest: /etc/nginx/nginx.conf
+
+    - name: 'Copy php-fpm.conf'
+      copy:
+        src: ../configfiles/php-fpm_zabbix.conf
+        dest: /etc/php-fpm.d/zabbix.conf
+
+    - name: 'Change ownership for nginx'
+      file: path='{{ item }}' state='directory' recurse='yes' owner='nginx' group='nginx'
+      with_items:
+        - /etc/zabbix/web/
+        - /usr/share/zabbix/
+        - /var/lib/php/session/
+
+    - name: 'Set timezone'
+      timezone:
+        name: Europe/Moscow
+
+    - name: 'Copy selinux modules'
+      copy: src='{{ item }}' dest='/tmp'
+      with_items:
+        - ../selinux/my_zabbix_service.pp
+        - ../selinux/my_zabbix_service.te
+        - ../selinux/my_zabbix_service2.pp
+        - ../selinux/my_zabbix_service2.te
+        - ../selinux/my_php-fpm_service.pp
+        - ../selinux/my_php-fpm_service.te
+
+    - name: 'Install selinux modules'
+      command: 'semodule -i /tmp/{{ item }}'
+      with_items:
+        - my_zabbix_service.pp
+        - my_zabbix_service2.pp
+        - my_php-fpm_service.pp
+
+    - name: 'Start php-fpm service'
+      systemd:
+        name: php-fpm
+        state: started
+        enabled: yes
+
+    - name: 'Start nginx service'
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes    
+
+    - name: 'Start zabbix server service'
+      systemd:
+        name: zabbix-server
+        state: started
+        enabled: yes
+
+    
+      
+
+    
+        
+

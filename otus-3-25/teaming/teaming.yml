@@ -1,0 +1,5 @@
+---
+- hosts: teaming
+  become: true
+  roles:
+    - teaming-up

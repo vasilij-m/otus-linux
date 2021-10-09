@@ -1,0 +1,4 @@
+---
+master_hostname: master
+slave_hostname: slave
+barman_hostname: barman

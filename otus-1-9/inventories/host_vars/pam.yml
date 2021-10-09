@@ -1,0 +1,13 @@
+users:
+  - name: 'user1'
+    pass: '$6$dcO9htkBe$gaQ72PzCSHC3J1tqw3BfqZvxSnlk7IIr/6HakXxotl/xeVnFiHiw/3oAbxxLbfSxclAVayw3wOPERWvpqDIZb1'
+    groups: 'docker'
+  - name: 'user2'
+    pass: '$6$dcO9htkBe$gaQ72PzCSHC3J1tqw3BfqZvxSnlk7IIr/6HakXxotl/xeVnFiHiw/3oAbxxLbfSxclAVayw3wOPERWvpqDIZb1'
+    groups: ''
+  - name: 'admin1'
+    pass: '$6$gVCHXPR3dS$zIGo2zx9ZA/7Pl7n/rUQCmDz8K9mIPRk4RcM4sCfTE.XNWGVEr/uEBHdPnSoVqYY2.7AneVUNZRFYgZlpifYi0'
+    groups: 'admin'
+  - name: 'admin2'
+    pass: '$6$gVCHXPR3dS$zIGo2zx9ZA/7Pl7n/rUQCmDz8K9mIPRk4RcM4sCfTE.XNWGVEr/uEBHdPnSoVqYY2.7AneVUNZRFYgZlpifYi0'
+    groups: 'admin'

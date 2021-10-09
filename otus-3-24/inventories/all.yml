@@ -1,0 +1,8 @@
+all:
+  hosts:
+    ovpn-server:
+      ansible_host: 192.168.10.10
+      ansible_ssh_private_key_file: ./.vagrant/machines/ovpn-server/virtualbox/private_key
+    ovpn-client:
+      ansible_host: 192.168.10.20
+      ansible_ssh_private_key_file: ./.vagrant/machines/ovpn-client/virtualbox/private_key

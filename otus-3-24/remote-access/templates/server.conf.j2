@@ -1,0 +1,19 @@
+port {{ rasport }}
+proto {{ rasproto }}
+dev {{ rasdev }}
+ca /etc/openvpn/pki/ca.crt
+cert /etc/openvpn/pki/issued/server.crt
+key /etc/openvpn/pki/private/server.key
+dh /etc/openvpn/pki/dh.pem
+server {{ rasserver }}
+route {{ rasroute }}
+push "{{ raspush }}"
+client-to-client
+client-config-dir /etc/openvpn/client
+keepalive 10 120
+compress {{ rascompress }}
+persist-key
+persist-tun
+status /var/log/openvpn-status.log
+log /var/log/openvpn.log
+verb 3

@@ -1,0 +1,66 @@
+---
+master_ip_address: "192.168.10.10"
+master_hostname: master
+slave_ip_address: "192.168.10.20"
+slave_hostname: slave
+barman_ip_address: "192.168.10.30"
+barman_hostname: barman
+
+pgsql_data_dir: "/var/lib/pgsql/12/data/"
+pgsql_bin_path: "/usr/pgsql-12/bin/"
+pgsql_encoding: "UTF8"
+pgsql_locale: "en_US.UTF8"
+
+root_default_pgdatabase: postgres
+
+pgsql_root_user_name: root
+pgsql_root_user_password: MyP@ssw0rd
+pgsql_root_user_attr: SUPERUSER,LOGIN
+
+pgsql_replication_user_name: repler
+pgsql_replication_user_password: replpass
+pgsql_replication_user_attr: LOGIN,REPLICATION
+
+pgsql_barman_user_name: barman
+pgsql_barman_user_password: barmanpass
+pgsql_barman_user_attr: SUPERUSER
+
+pgsql_streaming_user_name: streaming_barman
+pgsql_streaming_user_password: barmanpass
+pgsql_streaming_user_attr: REPLICATION
+
+pgsql_mamonsu_user_name: mamonsu
+pgsql_mamonsu_user_password: mamonsu
+pgsql_mamonsu_user_attr: LOGIN
+
+pgsql_mamonsu_database: mamonsu
+pgsql_mamonsu_host: localhost
+pgsql_mamonsu_port: "5432"
+pgsql_mamonsu_application_name: mamonsu
+pgsql_mamonsu_query_timeout: "10"
+pgsql_mamonsu_autoconf_enabled: True
+
+pgsql_hba_entries:
+  - {type: local, database: all, user: all, address: "", auth_method: peer}
+  - {type: host, database: all, user: all, address: "0.0.0.0/0", auth_method: md5}
+  - {type: host, database: replication, user: "{{ pgsql_replication_user_name }}", address: "{{ slave_ip_address }}/32", auth_method: md5}
+  - {type: host, database: replication, user: "{{ pgsql_barman_user_name }}", address: "{{ barman_ip_address }}/32", auth_method: md5}
+  - {type: host, database: replication, user: "{{ pgsql_streaming_user_name }}", address: "{{ barman_ip_address }}/32", auth_method: md5}
+
+pgsql_global_options:
+  - {option: listen_addresses, value: "listen_addresses = '0.0.0.0'"}
+  - {option: max_wal_senders, value: "max_wal_senders = 3"}
+  - {option: max_replication_slots, value: "max_replication_slots = 10"}
+  - {option: wal_level, value: "wal_level = replica"}
+  - {option: hot_standby, value: "hot_standby = on"}
+  - {option: wal_keep_segments, value: "wal_keep_segments = 128"}
+
+pgsql_users:
+  - {name: "{{ pgsql_root_user_name }}", password: "{{ pgsql_root_user_password }}", encrypted: yes, role_attr_flags: "{{ pgsql_root_user_attr }}"}
+  - {name: "{{ pgsql_replication_user_name }}", password: "{{ pgsql_replication_user_password }}", encrypted: yes, role_attr_flags: "{{ pgsql_replication_user_attr }}"}
+  - {name: "{{ pgsql_barman_user_name }}", password: "{{ pgsql_barman_user_password }}", encrypted: yes, role_attr_flags: "{{ pgsql_barman_user_attr }}"}
+  - {name: "{{ pgsql_streaming_user_name }}", password: "{{ pgsql_streaming_user_password }}", encrypted: yes, role_attr_flags: "{{ pgsql_streaming_user_attr }}"}
+  - {name: "{{ pgsql_mamonsu_user_name }}", password: "{{ pgsql_mamonsu_user_password }}", encrypted: yes, role_attr_flags: "{{ pgsql_mamonsu_user_attr }}"}
+
+pgsql_databases:
+  - {name: "{{ pgsql_mamonsu_database }}", owner: "{{ pgsql_mamonsu_user_name }}", state: present}

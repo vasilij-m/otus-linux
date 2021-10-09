@@ -1,0 +1,47 @@
+---
+- name: Set timezone
+  timezone:
+    name: Europe/Moscow
+
+- name: Install audispd-plugins
+  yum:
+    name: audispd-plugins
+    state: present
+
+- name: Copy rsyslog config
+  copy:
+    src: rsyslog.conf
+    dest: /etc/rsyslog.conf
+  notify:
+    - restart rsyslog
+
+- name: Copy auditd config
+  copy:
+    src: auditd.conf
+    dest: /etc/audit/auditd.conf
+  notify:
+    - restart auditd
+
+- name: Adding elasticsearch repo
+  copy:
+    src: elasticsearch.repo
+    dest: /etc/yum.repos.d/
+
+- name: Install filebeat
+  yum:
+    name: filebeat
+    state: present
+
+- name: Start filebeat
+  systemd:
+    name: filebeat
+    state: started
+    enabled: yes
+
+- name: Copy filebeat config
+  copy:
+    src: filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+  notify:
+    - restart filebeat
+

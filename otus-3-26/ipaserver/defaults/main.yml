@@ -1,0 +1,19 @@
+---
+ipaserver_hostname: ipaserver.otus.lab
+ipaserver_alias: ipaserver
+ipaserver_ipaddress: '192.168.10.10'
+ipaserver_domain: otus.lab
+ipaserver_realm: OTUS.LAB
+ipaserver_managerpassword: pa$$w0rd
+ipaserver_kerberospassword: paSSwOrd
+ipaserver_adminspassword: psswrd$@!
+ipaserver_forwarder: '8.8.8.8'
+ipaserver_admin: admin
+user_login_name: vova
+user_first_name: Vladimir
+user_surname: Putin
+user_displayname: Vladimir Putin
+user_password: vLdMrPtN
+user_sshpubkey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4a52WJAhrbPzn2TiTNU84vA+egxxM/um5NpWbnos45Fh2KIKmvh79B10fQlPnD1zss/7+pHEEKjsjnU41Utax6R7oKeApo7ZI7GLrTmRSFyPlvkbBCf/SUPaj7A04tXF8boK06QHPDqD0Tgze/F7usuGEtq83sv2ScfKGwheau+6pjE8qGGifDK0pZNDiyzKHceZb30zAPkvE8u8u9hWCuUYgfqc7W5uqpPePwDYR0c2K5xtm8hrj5dSPbFowXxlFyIfz0LBs5/wuvlyfrcW+QyBTM1YKpzdcr6pgu43wywYaDHqb78c65+8Y41OQE3vckn3oKtQxMNf7tNcwF0kP vova@otus.lab'
+user_shell: '/bin/bash'
+

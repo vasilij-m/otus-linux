@@ -1,0 +1,14 @@
+---
+- name: 'Install nginx from epel repo'
+  hosts: zabbix
+  become: true
+  tasks:
+    - name: 'Install epel repo'
+      yum:
+        name: epel-release
+        state: present
+
+    - name: 'Instal nginx'
+      yum:
+        name: nginx
+        state: present

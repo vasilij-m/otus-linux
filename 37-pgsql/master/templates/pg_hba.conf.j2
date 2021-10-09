@@ -1,0 +1,5 @@
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+# "local" is for Unix domain socket connections only
+{% for client in pgsql_hba_entries %}
+{{ client.type }} {{ client.database }} {{ client.user }} {{ client.address }} {{ client.auth_method }}
+{% endfor %}

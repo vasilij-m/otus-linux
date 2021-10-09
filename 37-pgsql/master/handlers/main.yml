@@ -1,0 +1,13 @@
+---
+- name: reload postgresql
+  systemd:
+    name: postgresql-12
+    state: reloaded
+
+- name: restart postgresql
+  systemd:
+    name: postgresql-12
+    state: restarted
+
+- name: Source the bashrc file
+  shell: source /root/.bashrc

@@ -1,0 +1,17 @@
+
+module my_zabbix_service 1.0;
+
+require {
+	type zabbix_var_run_t;
+	type zabbix_t;
+	class sock_file unlink;
+	class unix_stream_socket connectto;
+}
+
+#============= zabbix_t ==============
+
+#!!!! The file '/run/zabbix/zabbix_server_alerter.sock' is mislabeled on your system.  
+#!!!! Fix with $ restorecon -R -v /run/zabbix/zabbix_server_alerter.sock
+#!!!! This avc can be allowed using the boolean 'daemons_enable_cluster_mode'
+allow zabbix_t self:unix_stream_socket connectto;
+allow zabbix_t zabbix_var_run_t:sock_file unlink;

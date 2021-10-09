@@ -1,0 +1,16 @@
+---
+master_ip_address: "192.168.10.10"
+master_hostname: master
+slave_ip_address: "192.168.10.20"
+slave_hostname: slave
+barman_ip_address: "192.168.10.30"
+barman_hostname: barman
+
+pgsql_data_dir: "/var/lib/pgsql/12/data/"
+pgsql_bin_path: "/usr/pgsql-12/bin/"
+pgsql_encoding: "UTF8"
+pgsql_locale: "en_US.UTF8"
+
+
+
+

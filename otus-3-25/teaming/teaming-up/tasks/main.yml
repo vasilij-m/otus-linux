@@ -1,0 +1,37 @@
+---
+- name: Install packages for teaming
+  yum:
+    name:
+      - teamd
+      - NetworkManager-glib
+      - nm-connection-editor
+    state: present
+
+- name: Include vars for inetRouter
+  include_vars: inetRouter.yml
+  when: ansible_hostname == 'inetRouter'
+
+- name: Include vars for centralRouter
+  include_vars: centralRouter.yml
+  when: ansible_hostname == 'centralRouter'
+
+- name: Setting up interface teaming
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: 'ifcfg-team0.j2', dest: '/etc/sysconfig/network-scripts/ifcfg-team0'}
+    - {src: 'ifcfg-team0-eth1.j2', dest: '/etc/sysconfig/network-scripts/ifcfg-team0-eth1'}
+    - {src: 'ifcfg-team0-eth2.j2', dest: '/etc/sysconfig/network-scripts/ifcfg-team0-eth2'}
+  notify:
+    - restart network
+
+- name: Delete ifcfg-eth1/2
+  file:
+    path: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+    state: absent
+  loop:
+    - eth1
+    - eth2
+  notify:
+    - restart network

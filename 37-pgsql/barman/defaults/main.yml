@@ -1,0 +1,7 @@
+---
+master_ip_address: "192.168.10.10"
+master_hostname: master
+slave_ip_address: "192.168.10.20"
+slave_hostname: slave
+barman_ip_address: "192.168.10.30"
+barman_hostname: barman

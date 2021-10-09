@@ -1,0 +1,14 @@
+dev {{ rasdev }}
+proto {{ rasproto }}
+remote {{ rasremote }}
+client
+resolv-retry infinite
+ca ./ca.crt
+cert ./client.crt
+key ./client.key
+compress {{ rascompress }}
+persist-key
+persist-tun
+status /var/log/openvpn-client-status.log
+log-append /var/log/openvpn-client.log
+verb 3

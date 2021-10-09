@@ -1,0 +1,37 @@
+all:
+  children:
+    vlan:
+    bonding:
+  
+bonding:  
+  hosts:
+    inetRouter:
+      ansible_host: 10.11.11.11
+      ansible_ssh_private_key_file: ./.vagrant/machines/inetRouter/virtualbox/private_key
+
+    centralRouter:
+      ansible_host: 10.11.11.12
+      ansible_ssh_private_key_file: ./.vagrant/machines/centralRouter/virtualbox/private_key
+
+vlan:
+  hosts:
+    testServer1:
+      ansible_host: 10.11.11.111
+      ansible_ssh_private_key_file: ./.vagrant/machines/testServer1/virtualbox/private_key
+
+    testClient1:
+      ansible_host: 10.11.11.121
+      ansible_ssh_private_key_file: ./.vagrant/machines/testClient1/virtualbox/private_key
+
+    testServer2: 
+      ansible_host: 10.11.11.112
+      ansible_ssh_private_key_file: ./.vagrant/machines/testServer2/virtualbox/private_key
+
+    testClient2:
+      ansible_host: 10.11.11.122
+      ansible_ssh_private_key_file: ./.vagrant/machines/testClient2/virtualbox/private_key
+
+
+
+
+      

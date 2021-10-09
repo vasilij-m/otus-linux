@@ -1,0 +1,16 @@
+---
+- name: 'Install mariadb for zabbix'
+  hosts: zabbix
+  become: true
+  tasks:
+    
+    - name: 'Install mariadb'
+      yum:
+        name: mariadb-server
+        state: present
+
+    - name: 'Enable mysql service'
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes

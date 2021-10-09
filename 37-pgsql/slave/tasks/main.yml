@@ -1,0 +1,17 @@
+---
+- name: Copy hosts file
+  template:
+    src: slave_hosts.j2
+    dest: /etc/hosts
+
+- name: Initialize database
+  command: "{{ pgsql_bin_path }}/initdb -D {{ pgsql_data_dir }} -E {{ pgsql_encoding }} --locale {{ pgsql_locale }}"
+  become_user: postgres
+  args:
+    creates: "{{ pgsql_data_dir }}/postgresql.conf"
+
+- name: Ensure PosgreSQL is started and enabled
+  systemd:
+    name: postgresql-12
+    state: started
+    enabled: yes

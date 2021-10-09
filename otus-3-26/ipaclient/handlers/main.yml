@@ -1,0 +1,21 @@
+---
+- name: restart sshd
+  systemd:
+    name: sshd
+    state: restarted
+
+- name: prevent resolv.conf update
+  file:
+    path: /etc/resolv.conf
+    attr: +i
+
+- name: restart NetworkManager
+  systemd:
+    name: NetworkManager
+    state: restarted
+
+- name: reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+

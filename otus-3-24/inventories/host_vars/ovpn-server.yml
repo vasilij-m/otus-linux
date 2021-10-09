@@ -1,0 +1,17 @@
+ipaddr: '10.0.0.1'
+prefix: '32'
+network: '10.0.0.1'
+
+stsdev: 'tap'
+stsifconfig: '172.16.10.1 255.255.255.0'
+ststopology: 'subnet'
+stsroute: '10.0.0.2 255.255.255.255 172.16.10.2'
+stscompress: 'lzo'
+
+rasport: '1195'
+rasproto: 'udp'
+rasdev: 'tun'
+rasserver: '172.16.10.0 255.255.255.0'
+rasroute: '10.0.0.2 255.255.255.255'
+raspush: 'route 10.0.0.1 255.255.255.255'
+rascompress: 'lzo'
